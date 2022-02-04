@@ -47,6 +47,10 @@ export default ({ data: bills, loading, error }) => {
   } else if (error) {
     return ErrorPage(error)
   }
+  let billsSortedByDates 
+  if(bills) {
+    billsSortedByDates = [...bills].sort((a, b) => new Date(b.date) - new Date(a.date)) 
+  }
   
   return (`
     <div class='layout'>
@@ -69,7 +73,7 @@ export default ({ data: bills, loading, error }) => {
               </tr>
           </thead>
           <tbody data-testid="tbody">
-            ${rows(bills)}
+            ${rows(billsSortedByDates)}
           </tbody>
           </table>
         </div>
