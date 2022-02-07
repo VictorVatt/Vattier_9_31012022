@@ -68,6 +68,7 @@ export default class Login {
       })).then(({jwt}) => {
         localStorage.setItem('jwt', jwt)
       })
+      .catch(error => console.error(error))
     } else {
       return null
     }
