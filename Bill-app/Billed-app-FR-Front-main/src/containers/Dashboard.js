@@ -146,9 +146,9 @@ export default class {
     }
 
     bills.forEach(bill => {
-      $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
+      // jquery selector #open-bill enfant de #statuts-bills-container
+      $(`#open-bill${bill.id}`, `#status-bills-container${this.index}`).click((e) => this.handleEditTicket(e, bill, bills))
     })
-
     return bills
 
   }
