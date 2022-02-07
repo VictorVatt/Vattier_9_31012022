@@ -19,9 +19,20 @@ const row = (bill) => {
     `)
   }
 
-const rows = (data) => {
-  return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
-}
+  const rows = (data) => {
+    //custom sorting function
+    if (data &&data.length){
+    data.sort(function(a,b){
+      var c = new Date(a.date);
+      var d = new Date(b.date);
+      return d-c;
+      });
+      return data.map(bill => row(bill)).join("")
+    }
+  
+    return  ""
+  }
+  
 
 export default ({ data: bills, loading, error }) => {
   
@@ -47,10 +58,6 @@ export default ({ data: bills, loading, error }) => {
   } else if (error) {
     return ErrorPage(error)
   }
-  let billsSortedByDates 
-  if(bills) {
-    billsSortedByDates = [...bills].sort((a, b) => new Date(b.date) - new Date(a.date)) 
-  }
   
   return (`
     <div class='layout'>
@@ -73,7 +80,7 @@ export default ({ data: bills, loading, error }) => {
               </tr>
           </thead>
           <tbody data-testid="tbody">
-            ${rows(billsSortedByDates)}
+            ${rows(bills)}
           </tbody>
           </table>
         </div>
