@@ -1,12 +1,15 @@
 /**
  * @jest-environment jsdom
  */
+import {screen, waitFor, fireEvent} from "@testing-library/dom"
+import '@testing-library/jest-dom'
 
-import {screen, waitFor} from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
-import { ROUTES_PATH} from "../constants/routes.js";
+import Bills from "../containers/Bills.js";
+import { ROUTES, ROUTES_PATH} from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
+import store from "../__mocks__/store.js"
 
 import router from "../app/Router.js";
 
@@ -38,3 +41,22 @@ describe("Given I am connected as an employee", () => {
     })
   })
 })
+  describe("Given I'm connected has an employee", () => {
+    describe("Given I'm an the bill page", () => {
+      // Test pour handleCLickIconEye
+      test('Should call the handleClickIconEye when i click on iconEye', ()=>{    
+        document.body.innerHTML = BillsUI({ data: bills }) // J'affiche le html a partir des données mockées dans fixture/bills.js
+        const bill = new Bills({ document, onNavigate: (pathname) => document.body.innerHTML = ROUTES({ pathname })})
+        
+        const eyesIcons = screen.getAllByTestId('icon-eye') // Selection tout les elements EYE du DOM
+        expect(eyesIcons).toBeTruthy() // test si les elements EYES du DOM ne sont pas null ou undifined
+        const eyeIcon1 = eyesIcons[0] // On selectionne le premeier eyeIcon (INDEX0)
+        const handleClickIconEye = jest.fn(bill.handleClickIconEye(eyeIcon1))// on simule la fonction handleClickIconEye avec jest.fn sur l'icon1
+        // correction dans setup jest pour utiliser jest.fn avec jquery
+        eyeIcon1.addEventListener("click", handleClickIconEye) // on ajout le listner qui call la fonction simuler au click
+        expect(eyeIcon1).toBeTruthy() // on test si l'icone est defini
+        fireEvent.click(eyeIcon1) // on simule le click avec le fireEvent importé depuis jest
+        expect(handleClickIconEye).toHaveBeenCalled() // test si la fonction est bien appelée
+      })
+    })
+  })
