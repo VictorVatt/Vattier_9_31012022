@@ -48,8 +48,8 @@ describe("Given I am connected as an employee", () => {
         document.body.innerHTML = BillsUI({ data: bills }) // J'affiche le html a partir des données mockées dans fixture/bills.js
         const bill = new Bills({ document, onNavigate: (pathname) => document.body.innerHTML = ROUTES({ pathname })}) // création nouvelle instance de Bills
         
-        const eyesIcons = screen.getAllByTestId('icon-eye') // Selection tout les elements EYE du DOM
-        expect(eyesIcons).toBeTruthy() // test si les elements EYES du DOM ne sont pas null ou undifined
+        const eyesIcons = screen.getAllByTestId('icon-eye') // Selection tout les elements EYE du DOM 
+        expect(eyesIcons).toBeTruthy() // test si les elements EYES du DOM ne sont pas null ou undifined tout ce qui n'est pas falsy est truthy
         const eyeIcon1 = eyesIcons[0] // On selectionne le premeier eyeIcon (INDEX0)
         const handleClickIconEye = jest.fn(bill.handleClickIconEye(eyeIcon1))// on simule la fonction handleClickIconEye avec jest.fn sur l'icon1
         // correction dans setup jest pour utiliser jest.fn avec jquery
