@@ -27,6 +27,9 @@ export default class {
     $('#modaleFile').modal('show')
   }
 
+
+  // istanbul ignore next
+  
   getBills = () => {
     console.log(this.store)
     if (this.store) {

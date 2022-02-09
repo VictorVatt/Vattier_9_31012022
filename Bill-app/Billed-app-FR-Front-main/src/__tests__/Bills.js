@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import {screen, waitFor, fireEvent} from "@testing-library/dom"
+import {screen, waitFor, fireEvent,} from "@testing-library/dom"
 import '@testing-library/jest-dom'
 
 import BillsUI from "../views/BillsUI.js"
@@ -9,9 +9,10 @@ import { bills } from "../fixtures/bills.js"
 import Bills from "../containers/Bills.js";
 import { ROUTES, ROUTES_PATH} from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
-import store from "../__mocks__/store.js"
-
+import mockStore from "../__mocks__/store.js"
 import router from "../app/Router.js";
+
+jest.mock("../app/store", () => mockStore)
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -43,7 +44,8 @@ describe("Given I am connected as an employee", () => {
 })
   describe("Given I'm connected has an employee", () => {
     describe("When I'm an the bill page", () => {
-      // Test pour handleCLickIconEye
+
+      // Test intégration pour handleCLickIconEye
       test('Then call the handleClickIconEye when i click on iconEye', () => {    
         document.body.innerHTML = BillsUI({ data: bills }) // J'affiche le html a partir des données mockées dans fixture/bills.js
         const bill = new Bills({ document, onNavigate: (pathname) => document.body.innerHTML = ROUTES({ pathname })}) // création nouvelle instance de Bills
@@ -57,9 +59,10 @@ describe("Given I am connected as an employee", () => {
         expect(eyeIcon1).toBeTruthy() // on test si l'icone est defini
         fireEvent.click(eyeIcon1) // on simule le click avec le fireEvent importé depuis jest
         expect(handleClickIconEye).toHaveBeenCalled() // test si la fonction est bien appelée
-        expect(screen.getAllByText("Justificatif")).toBeTruthy()
+        expect(screen.getByText("Justificatif")).toBeTruthy()
       })
 
+      // Test intégration pour handleClickNewBill
       test("Then call the handleClickNewBill when i click on the buttonNewBill", () => {
         document.body.innerHTML = BillsUI({ data: bills }) // J'affiche le html donc le newBill button
         const bill = new Bills({ document, onNavigate: (pathname) => document.body.innerHTML = ROUTES({ pathname })}) // création nouvelle instance de Bills
@@ -71,7 +74,56 @@ describe("Given I am connected as an employee", () => {
         fireEvent.click(newBillBtn) // on simule le click sur le btn
         expect(handleCLickNewBill).toHaveBeenCalled() // on est si la fonction est bien call
         expect(screen.getByText('Envoyer une note de frais')).toBeTruthy() // Test pour savoir si la page est bien affiché en testant si "Envoyer noite de frais est bien affiché"
-
       })
     })
   })
+  
+  // Test d'intégration GET 
+describe("Given that I'am a user connected as an employee", () => {
+    describe("When I navigate to Bills", () => {
+      describe("When an error occurs on API", () => {
+        beforeEach(() => {
+          jest.spyOn(mockStore, "bills")
+          Object.defineProperty(
+              window,
+              'localStorage',
+              { value: localStorageMock }
+          )
+          window.localStorage.setItem('user', JSON.stringify({
+            type: 'employee',
+            email: "a@a"
+          }))
+          const root = document.createElement("div")
+          root.setAttribute("id", "root")
+          document.body.appendChild(root)
+          router()
+        })
+        test("fetches bills from an API and fails with 404 message error", async() => {
+          mockStore.bills.mockImplementationOnce(() => {
+                return {
+                  list : () => {
+                    return Promise.reject(new Error("Erreur 404"))
+                  }
+                }
+    
+          })
+          document.body.innerHTML = BillsUI( {error : "Erreur 404"})
+          const error = await screen.getByText(/Erreur 404/)
+          expect(error).toBeTruthy()
+        })
+        test("fetches messages from an API and fails with 500 message error", async() => {
+          mockStore.bills.mockImplementationOnce(() => {
+                return {
+                  list : () => {
+                    return Promise.reject(new Error("Erreur 500"))
+                  }
+                }
+    
+          })
+          document.body.innerHTML = BillsUI( {error : "Erreur 500"})
+          const error2 = await screen.getByText(/Erreur 500/)
+          expect(error2).toBeTruthy()
+        })
+    })
+  })
+})
