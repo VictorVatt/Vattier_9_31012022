@@ -82,19 +82,11 @@ describe("Given I am connected as an employee", () => {
 describe("Given that I'am a user connected as an employee", () => {
     describe("When I navigate to Bills", () => {
       test("fetches bills from mock API GET", async () => {
-        jest.spyOn(mockStore, "bills") // surveille l'appel de la fonction
-        mockStore.bills.mockImplementationOnce(() => { // simule le rejet de la promesse
-          return Promise.resolve()
-      })
-      document.body.innerHTML = BillsUI( { data : bills } )
-      const nameTest1 = await screen.getByText("encore")
-      expect(nameTest1).toBeTruthy()
-      const nameTest2 = await screen.getByText("test1")
-      expect(nameTest2).toBeTruthy()
-      const nameTest3 = await screen.getByText("test2")
-      expect(nameTest3).toBeTruthy()
-      const nameTest4 = await screen.getByText("test3")
-      expect(nameTest4).toBeTruthy()
+        const spyBills = jest.spyOn(mockStore, "bills") // surveille l'appel de la fonction
+        const prout = await mockStore.bills().list()
+
+      expect(spyBills).toHaveBeenCalledTimes(1)
+      expect(prout.length).toBe(4)
       })  
 
       describe("When an error occurs on API", () => {
