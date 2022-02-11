@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { screen, waitFor } from "@testing-library/dom"
+import { fireEvent, screen, waitFor } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 import { localStorageMock } from "../__mocks__/localStorage.js"
@@ -34,5 +34,40 @@ describe("Given I am connected as an employee", () => {
       expect(submitBtn).toBeTruthy()
     })
 
+    describe("When i submit the new bill", () => {
+      test("Then the handleSubmit function should be called", () => {
+        document.body.innerHTML = NewBillUI()
+        
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock})
+        window.localStorage.setItem('user', JSON.stringify({
+          type: 'Employee'
+        })) 
+        const newBill = new NewBill({document, onNavigate})
+        const handleSubmit = jest.fn(newBill.handleSubmit)
+        const submitFormBtn = screen.getByTestId("form-new-bill")
+        expect(submitFormBtn).toBeTruthy()
+        submitFormBtn.addEventListener("click", handleSubmit)
+        fireEvent.click(submitFormBtn)
+        expect(handleSubmit).toHaveBeenCalled()
+        
+      })
+    })
+
+
+    describe("When i select a new file", () => {
+      test("Then it should change the file uploaded and call the handleChangeFile", () => {
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock})
+        window.localStorage.setItem('user', JSON.stringify({ type: Employee}))
+        document.body.innerHTML = NewBillUI()
+
+        const newBill = new NewBill()
+        const handleChangeFile = jest.fn(newBill.handleChangeFile)
+        const changeFile
+
+
+
+      })
+    })
   })
+  
 })
