@@ -8,6 +8,10 @@ import NewBill from "../containers/NewBill.js"
 import { localStorageMock } from "../__mocks__/localStorage.js"
 import Router from "../app/Router.js"
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js"
+import mockStore from "../__mocks__/store"
+import { bills } from "../fixtures/bills.js"
+
+jest.mock("../app/store", () => mockStore)
 
 
 describe("Given I am connected as an employee", () => {
@@ -34,7 +38,10 @@ describe("Given I am connected as an employee", () => {
       expect(submitBtn).toBeTruthy()
     })
 
+
     describe("When i submit the new bill", () => {
+
+      // test pour la fonction handleSubmit
       test("Then the handleSubmit function should be called", () => {
         document.body.innerHTML = NewBillUI()
         
@@ -53,21 +60,31 @@ describe("Given I am connected as an employee", () => {
       })
     })
 
-
     describe("When i select a new file", () => {
+      // test de la fonction handleChangeFile
       test("Then it should change the file uploaded and call the handleChangeFile", () => {
         Object.defineProperty(window, 'localStorage', { value: localStorageMock})
-        window.localStorage.setItem('user', JSON.stringify({ type: Employee}))
+        window.localStorage.setItem('user', JSON.stringify({ type: "Employee"}))
         document.body.innerHTML = NewBillUI()
 
-        const newBill = new NewBill()
+        const newBill = new NewBill({
+          document,
+          onNavigate: (pathname) => document.body.innerHTML = ROUTES({pathname}),
+          localStorage: window.localStorage
+        })
         const handleChangeFile = jest.fn(newBill.handleChangeFile)
-        const changeFile
-
-
+        const changeFileBtn = screen.getByTestId("file")
+        expect(changeFileBtn).toBeTruthy()
+        changeFileBtn.addEventListener("change", handleChangeFile)
+        fireEvent.change(changeFileBtn, {
+          target: {
+            files: [new File(["test.png"], "test.png", { type : "image/png" })]
+          }
+        })
+        expect(handleChangeFile).toHaveBeenCalled()
+        expect(changeFileBtn.files[0].name).toBe("test.png")
 
       })
     })
   })
-  
 })
